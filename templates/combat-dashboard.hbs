@@ -1,0 +1,81 @@
+<section class="nontoken-combat-dashboard">
+  {{#unless isGM}}
+    <p class="nontoken-combat-empty">Este panel solo está disponible para el GM.</p>
+  {{else}}
+    <header class="nontoken-combat-dashboard-heading">
+      <h2>{{combatName}}</h2>
+    </header>
+
+    {{#if hasHealthSupported}}
+      <div class="nontoken-combat-dashboard-bulk" role="group" aria-label="Daño y curación masivos">
+        <button type="button" class="nontoken-combat-dashboard-select-all" data-action="toggleAll" aria-pressed="false" title="Seleccionar o deseleccionar todos">
+          <i class="fa-solid fa-check-double" aria-hidden="true"></i>
+          <span>Todos</span>
+        </button>
+        <select name="bulkHealthOperation" aria-label="Tipo de cambio de vida">
+          <option value="damage">Daño</option>
+          <option value="heal">Curar</option>
+        </select>
+        <input name="bulkHealthAmount" type="number" min="1" step="1" value="1" aria-label="Cantidad de puntos de vida">
+        <button type="button" data-action="applyBulkHealth" title="Aplicar al grupo seleccionado">
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+          <span>Aplicar</span>
+        </button>
+      </div>
+    {{/if}}
+
+    <div class="nontoken-combat-dashboard-list">
+      {{#if hasCombatants}}
+        {{#each combatants as |combatant|}}
+          <article class="nontoken-combat-dashboard-card {{#if combatant.defeated}}is-defeated{{/if}}" data-combatant-id="{{combatant.id}}">
+            {{#if ../hasHealthSupported}}
+              <label class="nontoken-combat-dashboard-select" aria-label="Seleccionar a {{combatant.name}}">
+                <input type="checkbox" name="combatantIds" value="{{combatant.id}}" {{#if combatant.selected}}checked{{/if}}>
+              </label>
+            {{/if}}
+            <img class="nontoken-combat-dashboard-portrait" src="{{combatant.img}}" alt="" loading="lazy">
+            <div class="nontoken-combat-dashboard-details">
+              <div class="nontoken-combat-dashboard-name-row">
+                <strong>{{combatant.name}}</strong>
+                {{#if combatant.initiative}}<span>Ini {{combatant.initiative}}</span>{{/if}}
+              </div>
+            </div>
+            <div class="nontoken-combat-dashboard-status-menu">
+              <button type="button" class="nontoken-combat-dashboard-status-trigger" data-action="toggleStatusMenu" aria-label="Estados de {{combatant.name}}" aria-expanded="false" title="Estados">
+                <i class="fa-solid fa-icons" aria-hidden="true"></i>
+              </button>
+              <div class="nontoken-combat-dashboard-status-popover" popover="auto" data-status-popover role="group" aria-label="Estados de {{combatant.name}}">
+                {{#each combatant.statusButtons as |status|}}
+                  <button type="button" class="nontoken-combat-dashboard-status {{#if status.active}}is-active{{/if}} {{#if status.locked}}is-locked{{/if}}" data-action="toggleStatus" data-status-id="{{status.id}}" aria-label="{{status.ariaLabel}}" aria-pressed="{{status.active}}" title="{{status.name}}" {{#if status.locked}}disabled{{/if}}>
+                    <img src="{{status.img}}" alt="">
+                  </button>
+                {{else}}
+                  <span class="nontoken-combat-dashboard-no-effects">No hay estados configurados</span>
+                {{/each}}
+              </div>
+            </div>
+            {{#if combatant.healthSupported}}
+              <div class="nontoken-combat-dashboard-health">
+                <label>
+                  <span>PG</span>
+                  <input data-health-value type="number" min="0" {{#if combatant.healthMax}}max="{{combatant.healthMax}}"{{/if}} value="{{combatant.healthValue}}" aria-label="Puntos de vida de {{combatant.name}}">
+                  {{#if combatant.healthMax}}<span>/ {{combatant.healthMax}}</span>{{/if}}
+                </label>
+                <button type="button" data-action="setHealth" title="Guardar vida">
+                  <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+                  <span class="visually-hidden">Guardar vida</span>
+                </button>
+              </div>
+            {{/if}}
+            <button type="button" data-action="toggleDefeated" class="nontoken-combat-dashboard-defeated" aria-pressed="{{combatant.defeated}}" aria-label="{{#if combatant.defeated}}Reactivar{{else}}Marcar derrotado{{/if}}" title="{{#if combatant.defeated}}Reactivar{{else}}Marcar derrotado{{/if}}">
+              <i class="fa-solid fa-skull" aria-hidden="true"></i>
+              <span class="visually-hidden">{{#if combatant.defeated}}Reactivar{{else}}Derrotado{{/if}}</span>
+            </button>
+          </article>
+        {{/each}}
+      {{else}}
+        <p class="nontoken-combat-empty">No hay combatientes en este combate.</p>
+      {{/if}}
+    </div>
+  {{/unless}}
+</section>
